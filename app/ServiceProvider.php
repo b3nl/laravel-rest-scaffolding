@@ -3,7 +3,7 @@
 namespace b3nl\RESTScaffolding\Providers;
 
 use b3nl\RESTScaffolding\Console\Commands\MakeRest;
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\ServiceProvider as BaseProvider;
 
 /**
  * Service-Provider.
@@ -13,7 +13,7 @@ use Illuminate\Support\ServiceProvider;
  * @subpackage Providers
  * @version $id$
  */
-class AppServiceProvider extends ServiceProvider
+class ServiceProvider extends BaseProvider
 {
     /**
      * Indicates if loading of the provider is deferred.
