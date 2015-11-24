@@ -16,12 +16,6 @@ use Illuminate\Support\ServiceProvider as BaseProvider;
 class ServiceProvider extends BaseProvider
 {
     /**
-     * Indicates if loading of the provider is deferred.
-     * @var bool
-     */
-    protected $defer = true;
-
-    /**
      * Bootstrap any application services.
      *
      * @return void
@@ -29,12 +23,12 @@ class ServiceProvider extends BaseProvider
     public function boot()
     {
         $this->publishes(
-            [__DIR__.'/../../config/rest-scaffolding.php' => config_path('rest-scaffolding.php')],
+            [__DIR__ . '/../config/rest-scaffolding.php' => config_path('rest-scaffolding.php')],
             'config'
         );
 
         $this->publishes(
-            [__DIR__.'/../../storage/rest-scaffolding' => storage_path('rest-scaffolding')],
+            [__DIR__ . '/../storage/rest-scaffolding' => storage_path('rest-scaffolding')],
             'templates'
         );
     } // function
