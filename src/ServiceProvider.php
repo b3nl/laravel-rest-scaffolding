@@ -1,6 +1,6 @@
 <?php
 
-namespace b3nl\RESTScaffolding\Providers;
+namespace b3nl\RESTScaffolding;
 
 use b3nl\RESTScaffolding\Console\Commands\MakeRest;
 use Illuminate\Support\ServiceProvider as BaseProvider;
