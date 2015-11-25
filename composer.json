@@ -1,4 +1,5 @@
 {
+    "minimum-stability": "stable",
     "name": "b3nl/laravel-rest-scaffolding",
     "description": "Generates basic routes and requests for REST APIs.",
     "keywords": ["framework", "laravel", "generator", "rest", "api"],
