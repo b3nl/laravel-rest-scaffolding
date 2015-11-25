@@ -4,6 +4,7 @@ namespace b3nl\RESTScaffolding\Jobs;
 
 use b3nl\RESTScaffolding\Jobs\Job;
 use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Support\Str;
 
 /**
  * Writes/changes the controller file for the project.
@@ -28,6 +29,7 @@ class ControllerWriter extends Job implements SelfHandling
             // TODO Error Message!
         } // if
 
+        $config['tableNamespace'] = ucfirst(Str::camel($config['tableNamespace']));
         $target = app_path("Http/Controllers/{$config['customNamespace']}/{$config['tableNamespace']}Controller.php");
 
         if (!is_dir($targetFolder = dirname($target))) {

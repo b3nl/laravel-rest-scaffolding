@@ -8,6 +8,7 @@ use b3nl\RESTScaffolding\Jobs\Job;
 use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Support\Str;
 
 /**
  * Writes/changes the route file for the project.
@@ -87,30 +88,49 @@ class RouteWriter extends Job implements SelfHandling
         );
 
         if (!$groups) {
-            $group = $file->appendLine(
-                new Line(call_user_func_array('sprintf', array_merge([$codeTemplate], $values)), T_VARIABLE)
+            $group = $file
+                ->appendLine(
+                    new Line(call_user_func_array('sprintf', array_merge([$codeTemplate], $values)), T_VARIABLE)
+                )
+                ->setNestingLevel(1);
+        } else {
+            $group = reset($groups);
+        } // else
+
+        foreach ($config as $table => $tableConfig) {
+            $ucTable = ucfirst($table);
+            $className = preg_replace('/(\w+\\\)+/', '', $tableConfig['model']);
+
+            if (!$file->findLine(['use %s' => [$tableConfig['model']]], 1)) {
+                $file->prependLine(new Line("use {$tableConfig['model']}"));
+            } // if
+
+            $modelLines = $file->findLine(
+                ['$router->model(\'%s\', %s::class)' => [$table, $className]], 1, $group->getNestingLevel() + 1
             );
 
-            foreach ($config as $table => $tableConfig) {
-                $ucTable = ucfirst($table);
-                $className = preg_replace('/(\w+\\\)+/', '', $tableConfig['model']);
-
-                if (!$file->findLine(['use %s' => [$tableConfig['model']]], 1)) {
-                    $file->prependLine(new Line("use {$tableConfig['model']}"));
-                } // if
-
+            if (!$modelLines) {
                 $group->appendLine(new Line(
                     "\$router->model('{$table}', {$className}::class)"
                 ));
-
-                $group->appendLine(new Line(
-                    "\$router->resource('{$table}', '{$ucTable}Controller', ['except' => ['create', 'edit']])"
-                ));
-            } // foreach
-
-            if (!$file->save()) {
-                throw new Exception('Routes files can not be cached.');
             } // if
+
+            $ctrlrPrefix = ucfirst(Str::camel($ucTable));
+            $ctrlrLines = $file->findLine(
+                ['$router->resource(\'%s\', \'%sController\', [\'except\' => [\'create\', \'edit\']])' =>
+                    [$table, $ctrlrPrefix]],
+                $group->getNestingLevel() + 1
+            );
+
+            if (!$ctrlrLines) {
+                $group->appendLine(new Line(
+                    "\$router->resource('{$table}', '{$ctrlrPrefix}Controller', ['except' => ['create', 'edit']])"
+                ));
+            } // if
+        } // foreach
+
+        if (!$file->save()) {
+            throw new Exception('Routes files can not be cached.');
         } // if
 
         return true;
