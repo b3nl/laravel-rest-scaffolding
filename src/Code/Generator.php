@@ -56,7 +56,7 @@ class Generator
         foreach ($config as $table => $tableConfig) {
             $replace = $basicReplace + [
                 'customUsages' => "use {$tableConfig['model']};",
-                'entityClass' => basename($tableConfig['model']),
+                'entityClass' => preg_replace('/(\w+\\\)+/', '', $tableConfig['model']),
                 'tableNamespace' => ucfirst($table)
             ];
 

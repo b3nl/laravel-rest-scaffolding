@@ -93,7 +93,7 @@ class RouteWriter extends Job implements SelfHandling
 
             foreach ($config as $table => $tableConfig) {
                 $ucTable = ucfirst($table);
-                $className = basename($tableConfig['model']);
+                $className = preg_replace('/(\w+\\\)+/', '', $tableConfig['model']);
 
                 if (!$file->findLine(['use %s' => [$tableConfig['model']]], 1)) {
                     $file->prependLine(new Line("use {$tableConfig['model']}"));
