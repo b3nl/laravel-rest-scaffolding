@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
  * @subpackage Http
  * @version $id$
  */
- */
 class {tableNamespace}Controller extends Controller
 {
     use PaginationTrait;
