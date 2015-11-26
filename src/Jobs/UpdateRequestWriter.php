@@ -29,6 +29,12 @@ class UpdateRequestWriter extends StoreRequestWriter
      */
     protected function getTemplatePath()
     {
-        return storage_path('rest-scaffolding/requests/update.php');
+        $return = storage_path('rest-scaffolding/requests/update.php');
+
+        if (!file_exists($return)) {
+            $return = storage_path('rest-scaffolding/requests/update.example.php');
+        } // if
+
+        return $return;
     } // function
 }

@@ -26,6 +26,10 @@ class ControllerWriter extends Job implements SelfHandling
         $template = storage_path('rest-scaffolding/controller.php');
 
         if (!file_exists($template)) {
+            $template = storage_path('rest-scaffolding/controller.example.php');
+        } // if
+
+        if (!file_exists($template)) {
             // TODO Error Message!
         } // if
 

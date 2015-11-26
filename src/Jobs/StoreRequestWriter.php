@@ -32,7 +32,13 @@ class StoreRequestWriter extends Job implements SelfHandling
      */
     protected function getTemplatePath()
     {
-        return storage_path('rest-scaffolding/requests/store.php');
+        $return = storage_path('rest-scaffolding/requests/store.php');
+
+        if (!file_exists($return)) {
+            $return = storage_path('rest-scaffolding/requests/store.example.php');
+        } // if
+
+        return $return;
     } // function
 
     /**
