@@ -57,6 +57,7 @@ class Generator
             $replace = $basicReplace + [
                 'customUsages' => "use {$tableConfig['model']};",
                 'entityClass' => preg_replace('/(\w+\\\)+/', '', $tableConfig['model']),
+                'tableName' => $table,
                 'tableNamespace' => ucfirst($table)
             ];
 

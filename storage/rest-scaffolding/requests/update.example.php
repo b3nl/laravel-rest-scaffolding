@@ -28,6 +28,8 @@ class UpdateRequest extends Request
      */
     public function rules()
     {
+        $entity = $this->route('{tableName}');
+
         return {validationRules};
     } // function
 }

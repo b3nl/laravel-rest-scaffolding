@@ -60,7 +60,21 @@ class StoreRequestWriter extends Job implements SelfHandling
             mkdir($targetFolder, 0644, true);
         } // if
 
-        $config['validationRules'] = var_export($config['validationRules'], true);
+
+        $parsedRules = '';
+
+        foreach ($config['validationRules'] as $name => $validation) {
+            $validationString = var_export($validation, true);
+
+            // Parse the dynamic values.
+            if (strpos($validationString, '$')) {
+                $validationString = str_replace("'", '"', $validationString);
+            }
+
+            $parsedRules .= var_export($name, true) . ' => ' . $validationString . ",\n";
+        } // foreach
+
+        $config['validationRules'] = "[\n" . rtrim($parsedRules, ",\n") . "\n]";
 
         $saved = (bool)file_put_contents(
             $target,
