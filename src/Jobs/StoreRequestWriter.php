@@ -32,10 +32,11 @@ class StoreRequestWriter extends Job implements SelfHandling
      */
     protected function getTemplatePath()
     {
-        $return = storage_path('rest-scaffolding/requests/store.php');
+        $config = $this->getConfig();
+        $return = storage_path("rest-scaffolding/requests/store/{$config['tableName']}.stub");
 
         if (!file_exists($return)) {
-            $return = storage_path('rest-scaffolding/requests/store.example.php');
+            $return = storage_path('rest-scaffolding/requests/store/default.stub');
         } // if
 
         return $return;

@@ -37,7 +37,8 @@ class {tableNamespace}Controller extends Controller
      * Returns the class name for rendering the list.
      * @return string
      */
-    protected function getListClassName() {
+    protected function getListClassName()
+    {
         return {entityClass}::class;
     } // function
 

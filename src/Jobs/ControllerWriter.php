@@ -23,10 +23,10 @@ class ControllerWriter extends Job implements SelfHandling
     public function handle()
     {
         $config = $this->getConfig();
-        $template = storage_path('rest-scaffolding/controller.php');
+        $template = storage_path("rest-scaffolding/controllers/{$config['tableName']}.stub");
 
         if (!file_exists($template)) {
-            $template = storage_path('rest-scaffolding/controller.example.php');
+            $template = storage_path('rest-scaffolding/controllers/default.stub');
         } // if
 
         if (!file_exists($template)) {
