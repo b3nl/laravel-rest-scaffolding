@@ -59,7 +59,10 @@ class {tableNamespace}Controller extends Controller
      */
     public function store(StoreRequest $request)
     {
-        return {entityClass}::create($request->all());
+        // this would only return the inserted attributes without the default ones.
+        $savedEntity = {entityClass}::create($request->all());
+
+        return {entityClass}::find($savedEntity->id);
     } // function
 
     /**
