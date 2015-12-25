@@ -1,6 +1,7 @@
 <?php
 namespace b3nl\RESTScaffolding\Http\Controllers;
 
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -22,56 +23,41 @@ trait PaginationTrait
     {
         /** @var Model $listClass */
         $listClass = app($this->getListClassName());
-
-        $baseURI = $router->getCurrentRoute()->getUri();
         $builder = $listClass->newQuery();
-        $filter = $request->get('filter', []);
-        $limit = (int) $request->get('limit', 30);
-        $queryData = $request->query();
-        $rows = [];
-        $skip = (int) $request->get('skip', 0);
-        $sorting = $request->get('sorting', []);
 
-        foreach ($sorting as $field => $direction) {
+        foreach ($request->get('sorting', []) as $field => $direction) {
             $builder->orderBy($field, $direction);
         } // foreach
 
-        $builder->where($filter)->skip($skip)->take($limit)->get();
+        /** @var Paginator $pagination */
+        $pagination = $builder
+            ->where($request->get('filter', []))
+            ->paginate((int)$request->get('limit', 30))
+            ->appends($request->query());
 
-        $result = $builder->get();
+        $count = count($pagination);
         $return = [];
-        $count = count($result);
-        $total = $listClass->newQuery()->where($filter)->count();
 
-        if ($total) {
-            $links = [
-                'self' => ['href' => url($baseURI . ($queryData ? '?' . http_build_query($queryData, null, '&') : ''))]
-            ];
+        if ($total = $pagination->total()) {
+            $baseURI = $router->getCurrentRoute()->getUri();
+            $rows = [];
+            $links = ['self' => ['href' => $pagination->url($pagination->currentPage())]];
 
             if ($total > $count) {
-                if ($skip + $limit < $total) {
-                    $links['next'] = ['href' => url(
-                        $baseURI . '?' .
-                        http_build_query(array_merge($queryData, array('skip' => $skip + $limit)), null, '&')
-                    )
-                    ];
+                $links['first'] = ['href' => $pagination->url(1)];
+                $links['last'] = ['href' => $pagination->url($pagination->lastPage())];
+
+                if ($pagination->hasMorePages()) {
+                    $links['next'] = ['href' => $pagination->nextPageUrl()];
                 }
 
-                if ($skip) {
-                    if (!$newSkip = $skip - $limit) {
-                        unset($queryData['skip']);
-                    } else {
-                        $queryData['skip'] = $newSkip;
-                    } // else
-
-                    $links['prev'] = [
-                        'href' => url($baseURI . ($queryData ? '?' . http_build_query($queryData, null, '') : ''))
-                    ];
+                if ($pagination->currentPage() > 1) {
+                    $links['prev'] = ['href' => $pagination->previousPageUrl()];
                 } // if
             }
 
             /** @var Model $row */
-            foreach ($result as $index => $row) {
+            foreach ($pagination as $index => $row) {
                 $rows[$index] = array_merge(
                     ['_links' => ['self' => ['href' => url($baseURI, $row->id)]]],
                     $row->toArray()
@@ -84,11 +70,13 @@ trait PaginationTrait
                 ],
                 '_links' => $links,
                 'count' => $count,
-                'take' => $limit,
+                'take' => $pagination->perPage(),
                 'total' => $total,
             ];
-        } else if (!$count) {
-            abort(404);
+        } else {
+            if (!$count) {
+                abort(404);
+            }
         } // elseif
 
         // TODO 205, links in list.
