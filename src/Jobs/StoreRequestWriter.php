@@ -69,7 +69,7 @@ class StoreRequestWriter extends Job implements SelfHandling
 
             // Parse the dynamic values.
             if (strpos($validationString, '$')) {
-                $validationString = str_replace("'", '"', $validationString);
+                $validationString = '"' . trim($validationString, "'") . '"';
             }
 
             $parsedRules .= var_export($name, true) . ' => ' . $validationString . ",\n";
