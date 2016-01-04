@@ -4,7 +4,6 @@ namespace b3nl\RESTScaffolding\Jobs;
 
 use b3nl\RESTScaffolding\Code\Line;
 use b3nl\RESTScaffolding\File;
-use b3nl\RESTScaffolding\Jobs\Job;
 use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Bus\SelfHandling;
@@ -97,7 +96,7 @@ class RouteWriter extends Job implements SelfHandling
             $group = reset($groups);
         } // else
 
-        foreach ($config as $table => $tableConfig) {
+        foreach (@$config['tables'] ?: [] as $table => $tableConfig) {
             $ucTable = ucfirst($table);
             $className = preg_replace('/(\w+\\\)+/', '', $tableConfig['model']);
 
@@ -115,7 +114,7 @@ class RouteWriter extends Job implements SelfHandling
                 ));
             } // if
 
-            $ctrlrPrefix = ucfirst(Str::camel($ucTable));
+            $ctrlrPrefix = Str::ucfirst(Str::camel($ucTable));
             $ctrlrLines = $file->findLine(
                 ['$router->resource(\'%s\', \'%sController\', [\'except\' => [\'create\', \'edit\']])' =>
                     [$table, $ctrlrPrefix]],

@@ -6,6 +6,7 @@ use PHP_CodeSniffer_CLI;
 use RecursiveIterator;
 use b3nl\RESTScaffolding\Code\Line;
 use b3nl\RESTScaffolding\Code\Line\Factory;
+use b3nl\RESTScaffolding\Contracts\CodeTraversing;
 
 /**
  * Class for generating and finding code.
@@ -14,7 +15,7 @@ use b3nl\RESTScaffolding\Code\Line\Factory;
  * @package b3nl\RESTScaffolding
  * @version $id$
  */
-class File implements RecursiveIterator
+class File implements RecursiveIterator, CodeTraversing
 {
     /**
      * Caches the iterator instance.
@@ -53,6 +54,46 @@ class File implements RecursiveIterator
     } // function
 
     /**
+     * Adds a new line after the other line.
+     * @param Line $new
+     * @param Line $source
+     * @return CodeTraversing
+     */
+    public function addAfter(Line $new, Line $source) {
+        $sourceIndex = array_search($source, $lines = $this->getLines());
+
+        if ($sourceIndex === false) {
+            $this->appendLine($new);
+        } else {
+            array_splice($lines, $sourceIndex + 1, 0, [$new]);
+
+            $this->setLines($lines);
+        } // else
+
+        return $this;
+    } // function
+
+    /**
+     * Adds a new line after the other line.
+     * @param Line $new
+     * @param Line $source
+     * @return CodeTraversing
+     */
+    public function addBefore(Line $new, Line $source) {
+        $sourceIndex = array_search($source, $lines = $this->getLines()); // TODO Check if new Line.
+
+        if (!$sourceIndex) {
+            $this->prependLine($new);
+        } else {
+            array_splice($lines, $sourceIndex, 0, [$new]);
+
+            $this->setLines($lines);
+        }
+
+        return $this;
+    } // function
+
+    /**
      * Adds a line to this file.
      * @param Line $line
      * @return Line
@@ -80,24 +121,29 @@ class File implements RecursiveIterator
      * @param int $nestingLevel
      * @return array
      */
-    public function findLine(array $search, $limit = 0, $nestingLevel = -1)
+    public function findLine($search, $limit = 0, $nestingLevel = -1)
     {
         $matchCount = 0;
         $return = [];
-        $searchWords = current($search) ?: [key($search)];
 
-        $regex = call_user_func_array(
-            'sprintf',
-            array_merge(
-                [str_replace('\\?', '?', '/' . preg_quote(key($search), '/') . '/')],
-                array_map(
-                    function ($searchWord) {
-                        return '(' . preg_quote($searchWord, '/') . ')';
-                    },
-                    $searchWords
+        if (is_array($search)) {
+            $searchWords = current($search) ?: [key($search)];
+
+            $regex = call_user_func_array(
+                'sprintf',
+                array_merge(
+                    [str_replace('\\?', '?', '/' . preg_quote(key($search), '/') . '/')],
+                    array_map(
+                        function ($searchWord) {
+                            return '(' . preg_quote($searchWord, '/') . ')';
+                        },
+                        $searchWords
+                    )
                 )
-            )
-        );
+            );
+        } else {
+            $regex = $search;
+        }
 
         $iterator = new \RecursiveCallbackFilterIterator(
             $this,
@@ -130,6 +176,10 @@ class File implements RecursiveIterator
                 } // if
             } // if
         } // foreach
+
+        if ($limit === 1 && count($return) === $limit) {
+            $return = reset($return);
+        } // if
 
         return $return;
     } // function
@@ -264,12 +314,29 @@ class File implements RecursiveIterator
     } // function
 
     /**
+     * Sets the content of this code collection.
+     * @param string $content
+     * @return CodeTraversing
+     */
+    public function setContent($content) {
+        /** @var Factory $lineFactory */
+        $lineFactory = app(Factory::class);
+        $this->setLines($lineFactory->parseContent($content));
+
+        return $this;
+    } // function
+
+    /**
      * Sets the lines array for this file.
      * @param Line[] $lines
      * @return File
      */
     public function setLines(array $lines)
     {
+        array_walk($lines, function(Line $line) {
+           $line->setFile($this);
+        });
+
         $this->lines = $lines;
 
         return $this;

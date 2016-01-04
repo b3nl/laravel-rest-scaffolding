@@ -1,0 +1,53 @@
+/**
+ * Every ability can be executed if this returns true. Everything is forbidden on false.
+ * @param User $user
+ * @return bool|void
+ */
+public function before(User $user)
+{
+    {defaultBeforeCallback}
+} // function
+
+/**
+ * Checks if the entity can be deleted?
+ * @param User $user
+ * @param {entityClass} $entity
+ * @return bool|void
+ */
+public function destroy(User $user, {entityClass} $entity)
+{
+    return {defaultReturn};
+}
+
+/**
+ * Checks if the entity can be displayed?
+ * @param User $user
+ * @param {entityClass} $entity
+ * @return bool|void
+ */
+public function show(User $user, {entityClass} $entity)
+{
+    return {defaultReturn};
+}
+
+/**
+ * Checks if the entity can be stored?
+ * @param User $user
+ * @param {entityClass} $entity
+ * @return bool|void
+ */
+public function store(User $user, {entityClass} $entity)
+{
+    return {defaultReturn};
+}
+
+/**
+ * Checks if the entity can be updated?
+ * @param User $user
+ * @param {entityClass} $entity
+ * @return bool|void
+ */
+public function update(User $user, {entityClass} $entity)
+{
+    return {defaultReturn};
+}

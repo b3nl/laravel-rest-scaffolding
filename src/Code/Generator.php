@@ -2,6 +2,7 @@
 namespace b3nl\RESTScaffolding\Code;
 
 use b3nl\RESTScaffolding\Jobs\ControllerWriter;
+use b3nl\RESTScaffolding\Jobs\PolicyWriter;
 use b3nl\RESTScaffolding\Jobs\RouteWriter;
 use b3nl\RESTScaffolding\Jobs\StoreRequestWriter;
 use b3nl\RESTScaffolding\Jobs\UpdateRequestWriter;
@@ -36,13 +37,26 @@ class Generator
         return $this->progressBar;
     } // function
 
+    /**
+     * Creates the required files for the scaffolding config.
+     * @param array $config
+     * @param string $namespace
+     * @param string $prefix
+     * @return void
+     */
     public function processFiles(array $config, $namespace, $prefix)
     {
         if ($bar = $this->getProgressBar()) {
-            $bar->start((count($config) * 3) + 1);
+            $bar->start((count($config) * 4) + 1);
         } // if
 
-        $this->dispatch(new RouteWriter($config, $namespace, $prefix));
+        $this->dispatch(app(RouteWriter::class, [$config, $namespace, $prefix]));
+
+        if ($bar) {
+            $bar->advance();
+        } // if
+
+        $this->dispatch(app(PolicyWriter::class, [$config]));
 
         if ($bar) {
             $bar->advance();
@@ -53,7 +67,7 @@ class Generator
             'customNamespace' => $namespace
         ];
 
-        foreach ($config as $table => $tableConfig) {
+        foreach (@$config['tables'] ?: [] as $table => $tableConfig) {
             $replace = $basicReplace + [
                 'customUsages' => "use {$tableConfig['model']};",
                 'entityClass' => preg_replace('/(\w+\\\)+/', '', $tableConfig['model']),
@@ -61,25 +75,25 @@ class Generator
                 'tableNamespace' => ucfirst($table)
             ];
 
-            $this->dispatch(new ControllerWriter($replace));
+            $this->dispatch(app(ControllerWriter::class, [$replace]));
 
             if ($bar) {
                 $bar->advance();
             } // if
 
             $replace += [
-                'validationRules' => $tableConfig['validators']['store'] ?: []
+                'validationRules' => @$tableConfig['store']['validators'] ?: []
             ];
 
-            $this->dispatch(new StoreRequestWriter($replace));
+            $this->dispatch(app(StoreRequestWriter::class, [$replace]));
 
             if ($bar) {
                 $bar->advance();
             } // if
 
-            $replace['validationRules'] = $tableConfig['validators']['update'] ?: [];
+            $replace['validationRules'] = @$tableConfig['update']['validators'] ?: [];
 
-            $this->dispatch(new UpdateRequestWriter($replace));
+            $this->dispatch(app(UpdateRequestWriter::class, [$replace]));
 
             if ($bar) {
                 $bar->advance();

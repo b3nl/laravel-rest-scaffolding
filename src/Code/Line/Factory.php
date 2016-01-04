@@ -12,24 +12,42 @@ use b3nl\RESTScaffolding\Code\Line;
  */
 class Factory
 {
-    public function parseFile($file)
+    /**
+     * Creates Code lines out of the content.
+     * @param string $content
+     * @return Line[]
+     */
+    public function parseContent($content)
     {
-        $fileContent = @ (string)file_get_contents($file);
         $lines = [];
 
-        if ($fileContent) {
-            $tokens = token_get_all($fileContent);
+        if ($content) {
+            $tokens = token_get_all($content);
 
             $lines += $this->parseLines($tokens);
         } // if
 
         return array_values(array_filter($lines));
+    }
+
+    /**
+     * Parses code lines out of the given file.
+     * @param string $file
+     * @return Line[]
+     */
+    public function parseFile($file)
+    {
+        return $this->parseContent(@ (string)file_get_contents($file));
     } // function
 
+    /**
+     * Parses a single line out of the given tokens. Removes the found token for the created line from the tokens array.
+     * @param array $tokens
+     * @return Line|null
+     */
     protected function parseLine(array &$tokens)
     {
         $content = '';
-        $isComment = false;
         $return = null;
         $tokenIdent = null;
 
@@ -59,7 +77,8 @@ class Factory
             } // if
 
             // Change or break depth
-            if ((in_array($token, [';', '{'])) || ($isComment = $tokenIdent === T_COMMENT)) {
+            $isComment = in_array($tokenIdent, array(T_DOC_COMMENT, T_COMMENT), true);
+            if ((in_array($token, [';', '{'])) || $isComment) {
                 $return = new Line($content, $tokenIdent);
 
                 // Dive into depth.
@@ -74,6 +93,11 @@ class Factory
         return $return;
     } // function
 
+    /**
+     * Parses the lines out of the given tokens.
+     * @param array $tokens
+     * @return Line[]
+     */
     protected function parseLines(array &$tokens)
     {
         $lines = [];

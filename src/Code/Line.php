@@ -2,6 +2,7 @@
 namespace b3nl\RESTScaffolding\Code;
 
 use ArrayIterator;
+use b3nl\RESTScaffolding\File;
 use RecursiveIterator;
 
 /**
@@ -24,6 +25,12 @@ class Line implements RecursiveIterator
      * @var string
      */
     protected $content = '';
+
+    /**
+     * The file of this line.
+     * @var File|void
+     */
+    protected $file = null;
 
     /**
      * Caches the iterator instance.
@@ -70,7 +77,9 @@ class Line implements RecursiveIterator
         $content = $this->getContent();
 
         if (!$ChildLines = $this->getChildLines()) {
-            $content .= ";";
+            if (!in_array($this->getToken(), [T_COMMENT, T_DOC_COMMENT], true)) {
+                $content .= ";";
+            } // if
         } else {
             $inlineCall = ($startingParaCount = substr_count($content, '('))
                 ? $startingParaCount !== substr_count($content, ')')
@@ -143,6 +152,15 @@ class Line implements RecursiveIterator
     public function getContent()
     {
         return $this->content;
+    }
+
+    /**
+     * Returns the file of this file or null.
+     * @return File|void
+     */
+    public function getFile()
+    {
+        return $this->file;
     } // function
 
     /**
@@ -257,7 +275,19 @@ class Line implements RecursiveIterator
      */
     public function setContent($content)
     {
-        $this->content = $content;
+        $this->content = trim($content, ';{');
+
+        return $this;
+    } // function
+
+    /**
+     * Sets the file of this line.
+     * @param File $file
+     * @return $this
+     */
+    public function setFile(File $file)
+    {
+        $this->file = $file;
 
         return $this;
     } // function

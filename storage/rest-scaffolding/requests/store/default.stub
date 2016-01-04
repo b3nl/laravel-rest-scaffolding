@@ -14,11 +14,13 @@ class StoreRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * This check is made with a policy and is done in the controller, to get a model instance without additional
+     * queries for fullfilling Illuminate\Auth\Access\Gate::firstArgumentCorrespondsToPolicy.
      * @return bool
      */
     public function authorize()
     {
-        // TODO Check for user!
         return true;
     } // function
 

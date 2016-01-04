@@ -2,7 +2,6 @@
 
 namespace b3nl\RESTScaffolding\Jobs;
 
-use b3nl\RESTScaffolding\Jobs\Job;
 use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Support\Str;
 

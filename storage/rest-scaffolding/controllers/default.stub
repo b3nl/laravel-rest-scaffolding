@@ -28,6 +28,8 @@ class {tableNamespace}Controller extends Controller
      */
     public function destroy({entityClass} $entity)
     {
+        $this->authorize($entity);
+
         $entity->delete();
 
         return $entity;
@@ -49,6 +51,8 @@ class {tableNamespace}Controller extends Controller
      */
     public function show({entityClass} $entity)
     {
+        $this->authorize($entity);
+
         return $entity;
     } // function
 
@@ -59,10 +63,15 @@ class {tableNamespace}Controller extends Controller
      */
     public function store(StoreRequest $request)
     {
-        // this would only return the inserted attributes without the default ones.
-        $savedEntity = {entityClass}::create($request->all());
+        // This would only return the inserted attributes without the default ones ...
+        $entity = new {entityClass}($request->all());
 
-        return {entityClass}::find($savedEntity->id);
+        $this->authorize($entity);
+
+        $entity->save();
+
+        // ... so load the full row additionally.
+        return {entityClass}::find($entity->id);
     } // function
 
     /**
@@ -73,7 +82,11 @@ class {tableNamespace}Controller extends Controller
      */
     public function update(UpdateRequest $request, {entityClass} $entity)
     {
-        $entity->update($request->all());
+        $entity->fill($request->all());
+
+        $this->authorize($entity);
+
+        $entity->save();
 
         return $entity;
     } // function

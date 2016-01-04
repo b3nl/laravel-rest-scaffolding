@@ -3,6 +3,7 @@
 namespace b3nl\RESTScaffolding;
 
 use b3nl\RESTScaffolding\Console\Commands\MakeRest;
+use b3nl\RESTScaffolding\Jobs\PolicyWriter;
 use Illuminate\Support\ServiceProvider as BaseProvider;
 
 /**
@@ -41,5 +42,20 @@ class ServiceProvider extends BaseProvider
     public function register()
     {
         $this->commands([MakeRest::class]);
+
+        $this->registerServices();
+    } // function
+
+    /**
+     * Registers some services.
+     * @return AppServiceProvider
+     */
+    protected function registerServices()
+    {
+        $this->app->singleton(PolicyWriter::class, function (Container $serviceContainer) {
+            return new Factory($serviceContainer);
+        });
+
+        return $this;
     } // function
 }
