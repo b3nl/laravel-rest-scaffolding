@@ -6,7 +6,7 @@
 public function before(User $user)
 {
     {defaultBeforeCallback}
-} // function
+}
 
 /**
  * Checks if the entity can be deleted?

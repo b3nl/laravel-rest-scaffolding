@@ -30,12 +30,6 @@ class PolicyWriter extends Job implements SelfHandling
     protected $authProviderFile = null;
 
     /**
-     * The service container.
-     * @var Container
-     */
-    protected $services = null;
-
-    /**
      * Adds new policies to the provider.
      * @param array $mappedPolicies The mapped policies
      * @param Line $policiesCodeLine The found code line.
@@ -94,7 +88,6 @@ class PolicyWriter extends Job implements SelfHandling
         $appNamespace = $this->getAppNamespace();
         $config = $this->getConfig();
         $newUsages = [];
-        $services = $this->getServices();
 
         foreach (@$config['tables'] ?: [] as $table => $tableConfig) {
             $policyName = Str::ucfirst(Str::camel($table)) . 'Policy';
@@ -107,7 +100,7 @@ class PolicyWriter extends Job implements SelfHandling
                 } // if
 
 
-                $services->make(File::class, [$policyFile = app_path("Policies/{$policyName}.php")])->setContent(
+                app(File::class, [$policyFile = app_path("Policies/{$policyName}.php")])->setContent(
                     str_replace(
                         [
                             '    }',
@@ -144,7 +137,7 @@ class PolicyWriter extends Job implements SelfHandling
         if (!$this->authProviderFile) {
             if (file_exists($providerFile = app_path('Providers/AuthServiceProvider.php'))) {
                 /** @var File $file */
-                $this->authProviderFile = $this->getServices()->make(File::class, [$providerFile]);
+                $this->authProviderFile = app(File::class, [$providerFile]);
             } // if
         } // if
 
@@ -231,15 +224,6 @@ class PolicyWriter extends Job implements SelfHandling
     } // function
 
     /**
-     * Returns the service container.
-     * @return Container
-     */
-    public function getServices()
-    {
-        return $this->services;
-    } // function
-
-    /**
      * Execute the job.
      * @return bool
      * @throws Exception If there is something wrong.
@@ -258,17 +242,5 @@ class PolicyWriter extends Job implements SelfHandling
                 $this->addNewUsagesToProvider($newUsages);
             } // if
         } // if
-    } // function
-
-    /**
-     * Sets the service container.
-     * @param Container $services
-     * @return PolicyWriter
-     */
-    public function setServices($services)
-    {
-        $this->services = $services;
-
-        return $this;
-    } // function
+    }
 }
