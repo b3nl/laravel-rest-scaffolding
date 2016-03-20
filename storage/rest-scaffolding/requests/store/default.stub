@@ -22,7 +22,7 @@ class StoreRequest extends Request
     public function authorize()
     {
         return true;
-    } // function
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -31,5 +31,5 @@ class StoreRequest extends Request
     public function rules()
     {
         return {validationRules};
-    } // function
+    }
 }

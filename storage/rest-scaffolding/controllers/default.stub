@@ -33,7 +33,7 @@ class {tableNamespace}Controller extends Controller
         $entity->delete();
 
         return $entity;
-    } // function
+    }
 
     /**
      * Returns the class name for rendering the list.
@@ -42,7 +42,7 @@ class {tableNamespace}Controller extends Controller
     protected function getListClassName()
     {
         return {entityClass}::class;
-    } // function
+    }
 
     /**
      * Returns the entity.
@@ -54,7 +54,7 @@ class {tableNamespace}Controller extends Controller
         $this->authorize($entity);
 
         return $entity;
-    } // function
+    }
 
     /**
      * Saves the entity.
@@ -72,7 +72,7 @@ class {tableNamespace}Controller extends Controller
 
         // ... so load the full row additionally.
         return {entityClass}::find($entity->id);
-    } // function
+    }
 
     /**
      * Updates the entity.
@@ -89,5 +89,5 @@ class {tableNamespace}Controller extends Controller
         $entity->save();
 
         return $entity;
-    } // function
+    }
 }
