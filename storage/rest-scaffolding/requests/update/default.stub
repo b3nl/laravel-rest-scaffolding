@@ -18,7 +18,6 @@ class UpdateRequest extends Request
      */
     public function authorize()
     {
-        // TODO Check for user!
         return true;
     }
 
